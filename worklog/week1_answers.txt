@@ -1,0 +1,28 @@
+Week1.step1
+- VAP and VPB compilation ? 
+    -- Yes
+
+- Same processor ?
+    -- No. The VAP board is arm926 CPU, and the VPB board has a cortex-a8 cpu.
+
+- Same amount of memory ?
+    -- No. The VAP board has 1M byte memory and the VPB has 32M byte.
+
+- What is that bss section and why it needs to be reset to 0 ?
+    -- A section contains un-initialized variables.
+
+- Relationship between these global variables and the different data sections?
+    -- Uninitialized global variables (or initialized as 0) are stored in bss sectors,
+    -- Initialized global variables are stored in data sectors,
+    -- Local variables are stored in stacks.
+
+- Experiment with "arm-none-eabi-objdump" 
+    -- By using command "arm-none-eabi-objdump -d" on kernel.elf, we can see all
+       the instructions in memory.
+    -- By using command "arm-none-eabi-objdump -d" on main.o, we can see the ins-
+       tructions of function _start.
+
+- Why is the bss section aligned on a 16-byte boundary?
+    -- Because in reset.s, it resets 16 bits at the same time. When we assign space to 
+       data sectors (by .data : { *(.data) } ), alignment is not considered. So before 
+       assigning the bss section we need to align the data.

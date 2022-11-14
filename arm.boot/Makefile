@@ -2,9 +2,9 @@
 # Machine options:
 #   QEMU_MACHINE=versatileab
 #   QEMU_MACHINE=versatilepb
-QEMU_MACHINE=versatileab
+QEMU_MACHINE=versatilepb
 
-ifeq ($(QEMU_MACHINE),versatileab) 
+ifeq ($(QEMU_MACHINE),versatilepb) 
   QEMU_CPU=arm926
   QEMU_MEMORY=1M
   ASFLAGS=-mcpu=arm926ej-s 
@@ -13,7 +13,7 @@ endif
 
 ifeq ($(QEMU_MACHINE),versatilepb) 
   QEMU_CPU=cortex-a8
-  QEMU_MEMORY=32M
+  QEMU_MEMORY=32M 
   ASFLAGS=
   CFLAGS= -DBOARD_VERSATILEPB -mcpu=cortex-a8
 endif

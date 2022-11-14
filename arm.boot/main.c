@@ -1,5 +1,10 @@
 #include "main.h"
 
+// Declare some global variables
+int variableG1 = 0;
+int variableG2 = 1024;
+int variableG3;
+
 /**
  * This is the C entry point, upcalled once the hardware has been setup properly
  * in assembly language, see the reset.s file.
@@ -8,6 +13,8 @@
 void _start() {
   int i = 0;
   int count = 0;
+  int variableL = 15;
+
   uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
   uart_send_string(UART0, "\nHello world!\n");
 
