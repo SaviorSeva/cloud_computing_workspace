@@ -43,6 +43,10 @@
  */
 void kputchar(int c);
 
+void kputchar(int c){
+	uart_send(UART0, c);
+}
+
 /*
  * This is an equivalent to the function "printf" that you known about,
  * but a kernel version, with no dependencies to the libC that we do not

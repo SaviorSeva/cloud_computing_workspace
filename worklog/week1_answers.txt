@@ -26,3 +26,38 @@ Week1.step1
     -- Because in reset.s, it resets 16 bits at the same time. When we assign space to 
        data sectors (by .data : { *(.data) } ), alignment is not considered. So before 
        assigning the bss section we need to align the data.
+
+Week1.step2
+- Understand boot sequence with gdb ?
+    -- Yes. Start the program by "make debug", then launch gdb-multiarch on kernel.elf.
+       Let gdb connect to localhost:1234 (as defined in Makefile), then we're good to go.
+    -- Upon startup, the pc register is 0x0, therefore it will fetch the instruction loc-
+       ated at 0x0, which is _vector in linker script file. Then it jumps to the _reset 
+       function, which is located at 0x1000. After _reset is done it will jump to start by
+       instruction "bl _start", then it will execute the start() function in main.c.
+
+- Remove the periodic "Zzzz..." output. Why was it there? What does that tell you about the 
+  execution?
+    -- It indicates that the loop has been looping 10 millions times. Which tells us that 
+       the program is not halting, it's executing forever and consuming countless energies!
+    -- If we remove it all we can see is a blank terminal as nothing is displayed.
+
+- Why is the symbol _stack_top defined and why is it at the end of everything?
+    -- _stack_top is defined to indicate the top of the stack (which is 0x22a0 in this case).
+       Because stack is growing downwards, so it needs to be in the end of the section.
+
+- How can you verify in C that the stack is working properly?
+    -- Stack stores temporarily local variables. Which means that in the main.c program, var-
+       iable i and count are stored in stacks. Set a breakpoint at main.c:18, then use the c-
+       ommand "p/x &i" and "p/x &count" in gdb, it shows that i is located at 0x2290 and count
+       is located at 0x2294, which is above the _stack_top (0x22a0) and they're inside stack
+       section.
+
+- What would happen if we were to call to many functions in C?
+- How could you verify that your C program executes safely?
+    -- TODO
+
+- Had support for kprintf, see the file "kprintf.c".
+    -- By calling uart_send(UART0, c) in void kputchar(int c), I managed to make kprintf() wor-
+       king. I'm not sure whether it's the right approach or not ...
+
