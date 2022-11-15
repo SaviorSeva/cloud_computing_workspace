@@ -83,11 +83,14 @@ Week1.step3
 - left, right, up, and down arrows:
     -- The cursor in the main terminal (not the telnet one) moves with the inputs. It won't go 
        outside the terminal though. In the telnet terminal it shows that it prints 3 different 
-       characters, perhaps the arrow keys input are not in ascii format.
+       characters, perhaps the arrow keys input are not in ascii format. Or plainly there's so-
+       me problem in the code for converting them into binary.
 - backspace 
     -- Nothing happens. The letters are not deleted. In telnet console it detects the input as
        01111111. 
 -- delete
     -- Nothing happens. The letters are not deleted. In telnet console it detects the input as
-       3 different characters, '[', '3' and '~'. Again this could be an ascii issue.
+       3 different characters, '[', '3' and '~'. Again this could be an ascii issue or problem 
+       inside the code.
 
+Week1.step4
