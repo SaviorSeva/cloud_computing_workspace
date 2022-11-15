@@ -64,15 +64,16 @@ int clear_line(char* line){
   return 1;
 }
 
+int shift_line_left(int index, char *line){
+  for(index; index < MAX_LINE_LENGTH; index++){
+    line[index - 1] = line[index];
+  }
+  return 1;
+}
+
 void treat_line(char* line){
   add_line_to_history(line);
 }
-
-void del_process(){
-
-}
-
-
 
 int send_arrow(int direction){
   if (direction > 4 || direction <= 0) return 0;
@@ -109,18 +110,52 @@ void erase_current_line(int *cursor_pos, char *line){
   }
 }
 
+void show_line(int *cursor_pos, int line_last_index, char *line){
+  for(int i=0; i<line_last_index; i++){
+    uart_send(UART0, line[i]);
+    *cursor_pos = *cursor_pos + 1;
+  }
+}
+
+void refresh_line(int *cursor_pos, int line_last_index, char *line){
+  int original_cursor_pos = *cursor_pos;
+  uart_send(UART0, '\r');
+  for(int i=0; i<line_last_index; i++){
+    uart_send(UART0, ' ');
+  }
+  uart_send(UART0, '\r');
+  show_line(cursor_pos, line_last_index, line);
+}
+
+void reposition_cursor(int at){
+  uart_send(UART0, '\r');
+  for(int i=0; i<at; i++){
+    send_arrow(4);
+  }
+}
+
 void show_previous_line(int *cursor_pos, char *line){
   erase_current_line(cursor_pos, line);
   
 }
 
-void backspace_process(int *cursor_pos, char *line){
-  *cursor_pos = *cursor_pos - 1;
-  send_arrow(3);
-  uart_send(UART0, ' ');
-  send_arrow(3);
-  line[*cursor_pos] = 0;
+void backspace_process(int *cursor_pos, int *line_last_index, char *line){
+  int original_cursor_pos = *cursor_pos;
+  shift_line_left(*cursor_pos, line);
+  refresh_line(cursor_pos, *line_last_index, line);
+  *cursor_pos = original_cursor_pos - 1;
+  reposition_cursor(*cursor_pos);
+
 }
+
+void del_process(int *cursor_pos, int *line_last_index, char *line){
+  int original_cursor_pos = *cursor_pos;
+  shift_line_left(*cursor_pos+1, line);
+  refresh_line(cursor_pos, *line_last_index, line);
+  *cursor_pos = original_cursor_pos;
+  reposition_cursor(*cursor_pos);
+}
+
 
 void send_binary(char c)
 { 
@@ -147,9 +182,9 @@ void _start() {
   int count = 0;
   int variableL = 15;
   char line[MAX_LINE_LENGTH];
+  int line_last_index = 0;
   int cursor_pos = 0;
-  int arrow_status = 0;
-  int del_status = 0;
+  int history_offset = 0; 
 
   uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
   uart_send_string(UART0, "\nHello world!\n");
@@ -160,8 +195,6 @@ void _start() {
       // send_binary(c);
       
       if(c == '\033'){
-        arrow_status = 1;
-        del_status = 1;
         if (0 != uart_receive(UART0, &c)){}         // Skip the '['
         if (0 != uart_receive(UART0, &c)){
           // Possible arrow / del input
@@ -174,38 +207,47 @@ void _start() {
             
             break;
           case 'C': // Right
-            send_arrow(4);
+            if(cursor_pos < line_last_index){
+              send_arrow(4);
+              cursor_pos++;
+            }
             break;
           case 'D': // Left
-            send_arrow(3);
+            if(cursor_pos >= 1){
+              send_arrow(3);
+              cursor_pos--;
+            } 
             break;
           case '3':  // Delete
             if (0 != uart_receive(UART0, &c)){
-              if (c == '~') del_process();
+              if (c == '~') del_process(&cursor_pos, &line_last_index, line);
             }
             break;
           }
           c = '\000';
         }
-        
+        c = '\000';
       }
 
       // Backspace
-      if(c == 127) backspace_process(&cursor_pos, line);
+      if(c == 127) backspace_process(&cursor_pos, &line_last_index, line);
 
       // Normal characters
-      if(c >= 32 && c <= 126){
+      else if(c >= 32 && c <= 126){
         line[cursor_pos] = c;
         uart_send(UART0, c);
         cursor_pos++;
+        line_last_index++;
       }
 
       // Enter
       else if(c == '\r'){
         add_line_to_history(line);
+        kprintf(line);
         clear_line(line);
         uart_send(UART0, '\n');
         cursor_pos = 0;
+        line_last_index = 0;
       }
     }
   }
