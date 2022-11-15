@@ -35,6 +35,7 @@ const int MAX_HISTORY = 20;
 const int MAX_LINE_LENGTH = 80;
 char command_history[20][80];
 int current_index = 0;
+int avail_history = 0;
 
 int increment_history_index(){
   current_index++;
@@ -134,9 +135,17 @@ void reposition_cursor(int at){
   }
 }
 
-void show_previous_line(int *cursor_pos, char *line){
+void show_previous_line(int *cursor_pos, int history_offset, int *line_last_index, char *line){
   erase_current_line(cursor_pos, line);
-  
+  int i = current_index_offset(history_offset);
+  int l=0;
+  while(command_history[i][l] != '\r'){
+    line[l] = command_history[i][l];
+    *cursor_pos = *cursor_pos + 1;
+    *line_last_index = *line_last_index + 1;
+    uart_send(UART0, command_history[i][l]);
+    l++;
+  }
 }
 
 void backspace_process(int *cursor_pos, int *line_last_index, char *line){
@@ -201,9 +210,19 @@ void _start() {
           switch (c)
           {
           case 'A': // Up
-            show_previous_line(&cursor_pos, line);
+            if(history_offset != -avail_history) history_offset--;
+            show_previous_line(&cursor_pos, history_offset, &line_last_index, line);
+            
             break;
           case 'B': // Down
+            history_offset++;
+            if(history_offset == 0){
+              erase_current_line(&cursor_pos, line);
+              cursor_pos = 0;
+              line_last_index = 0;
+            }else if(history_offset < 0){
+              show_previous_line(&cursor_pos, history_offset, &line_last_index, line);
+            }else history_offset = 0;
             
             break;
           case 'C': // Right
@@ -242,12 +261,15 @@ void _start() {
 
       // Enter
       else if(c == '\r'){
+        line[cursor_pos] = c;
         add_line_to_history(line);
         kprintf(line);
         clear_line(line);
         uart_send(UART0, '\n');
         cursor_pos = 0;
         line_last_index = 0;
+        history_offset = 0;
+        if(avail_history < 20) avail_history++;
       }
     }
   }
