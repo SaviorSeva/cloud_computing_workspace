@@ -102,15 +102,16 @@ int send_arrow(int direction){
 void erase_current_line(int *cursor_pos, char *line){
   clear_line(line);
   while(*cursor_pos != 0){
+    send_arrow(3);
     uart_send(UART0, ' ');
-    send_arrow(4);
-    *cursor_pos--;
+    send_arrow(3);
+    *cursor_pos = *cursor_pos - 1;
   }
 }
 
 void show_previous_line(int *cursor_pos, char *line){
   erase_current_line(cursor_pos, line);
-
+  
 }
 
 void backspace_process(int *cursor_pos, char *line){
@@ -203,6 +204,7 @@ void _start() {
       else if(c == '\r'){
         add_line_to_history(line);
         clear_line(line);
+        uart_send(UART0, '\n');
         cursor_pos = 0;
       }
     }
