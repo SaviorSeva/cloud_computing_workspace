@@ -101,7 +101,7 @@ Notice what happens on the screen with the arrows... not
 your usual behavior, is it? Explain what is going on.	
 
 Notice that the cursor does not leave the window...
-that will be usefull to implement the clearing of the
+that will be useful to implement the clearing of the
 terminal window.
 
 ---------------------------------------------------

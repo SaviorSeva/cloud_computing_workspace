@@ -44,7 +44,7 @@
 void kputchar(int c);
 
 void kputchar(int c){
-	uart_send(UART0, c);
+	uart_send(UART1, c);
 }
 
 /*

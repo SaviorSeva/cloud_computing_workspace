@@ -61,3 +61,33 @@ Week1.step2
     -- By calling uart_send(UART0, c) in void kputchar(int c), I managed to make kprintf() wor-
        king. I'm not sure whether it's the right approach or not ...
 
+Week1.step3
+- Make sure you understand the UART BAR, register offsets, and bit fields.
+
+- Ask QEMU to emulate a second serial line, via a telnet connection.
+    1- Changing "QEMU_SERIAL=-serial mon:stdio -serial telnet:localhost:4321,server,nowait" in 
+       Makefile.
+    2- UART0 is used for stdio, and UART1 is used for the telnet.
+
+- Direct kprintf to output via that second serial line ?
+    -- Done by changing "uart_send(UART1, c);" in void kputchar().
+
+- Use that to print the byte values representing the encoding of the typed characters on the ke-
+  yboard.
+    -- Done. Check send_binary() in main.c.
+
+- Watch what happens when hitting regular letters, like 'a' 'b' 'A' and 'B'.
+    -- The letter itself and its binary form are well shown in the telnet terminal.
+
+- Watch what happens when hitting special keys:
+- left, right, up, and down arrows:
+    -- The cursor in the main terminal (not the telnet one) moves with the inputs. It won't go 
+       outside the terminal though. In the telnet terminal it shows that it prints 3 different 
+       characters, perhaps the arrow keys input are not in ascii format.
+- backspace 
+    -- Nothing happens. The letters are not deleted. In telnet console it detects the input as
+       01111111. 
+-- delete
+    -- Nothing happens. The letters are not deleted. In telnet console it detects the input as
+       3 different characters, '[', '3' and '~'. Again this could be an ascii issue.
+
