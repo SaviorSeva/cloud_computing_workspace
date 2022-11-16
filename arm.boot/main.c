@@ -72,8 +72,28 @@ int shift_line_left(int index, char *line){
   return 1;
 }
 
-void treat_line(char* line){
-  add_line_to_history(line);
+void command_echo(int line_length, char *line){
+  uart_send(UART0, '\n');
+  uart_send(UART0, '\r');
+  for(int i=5; i<line_length; i++){
+    uart_send(UART0, line[i]);
+  }
+  // uart_send(UART0, '\n');
+}
+
+void command_reset(){
+  for(int i=0; i<50; i++)
+    send_arrow(1);
+  uart_send(UART0, '\r');
+  for(int i=0; i<50; i++){
+    for(int i=0; i<MAX_LINE_LENGTH; i++)
+      uart_send(UART0, ' ');
+    send_arrow(2);
+  }
+  
+  for(int i=0; i<50; i++)
+    send_arrow(1);
+  uart_send(UART0, '\r');
 }
 
 int send_arrow(int direction){
@@ -165,6 +185,13 @@ void del_process(int *cursor_pos, int *line_last_index, char *line){
   reposition_cursor(*cursor_pos);
 }
 
+void treat_line(int line_length, char* line){
+  add_line_to_history(line);
+  if(line[0] == 'e' && line[1] == 'c' && line[2] == 'h' && line[3] == 'o' && line[4] == ' ') 
+    command_echo(line_length, line);
+  if(line[0] == 'r' && line[1] == 'e' && line[2] == 's' && line[3] == 'e' && line[4] == 't' && line[5] == '\r')
+    command_reset();
+}
 
 void send_binary(char c)
 { 
@@ -195,8 +222,7 @@ void _start() {
   int cursor_pos = 0;
   int history_offset = 0; 
 
-  uart_send_string(UART0, "\nQuit with \"C-a c\" and then type in \"quit\".\n");
-  uart_send_string(UART0, "\nHello world!\n");
+  command_reset();
 
   while (1) {
     unsigned char c;
@@ -262,14 +288,16 @@ void _start() {
       // Enter
       else if(c == '\r'){
         line[cursor_pos] = c;
-        add_line_to_history(line);
-        kprintf(line);
+        if(line[0] != '\r'){
+          treat_line(line_last_index, line);
+          kprintf(line);
+          if(avail_history < 20) avail_history++;
+        }
         clear_line(line);
         uart_send(UART0, '\n');
         cursor_pos = 0;
         line_last_index = 0;
         history_offset = 0;
-        if(avail_history < 20) avail_history++;
       }
     }
   }

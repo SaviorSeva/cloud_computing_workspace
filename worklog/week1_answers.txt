@@ -93,4 +93,31 @@ Week1.step3
        3 different characters, '[', '3' and '~'. Again this could be an ascii issue or problem 
        inside the code.
 
-Week1.step4
+Week1.step4 - Beginning of a console shell
+- Upon startup, clear the screen with the cursor at the top-left corner?
+    -- Check. Basically execute a reset upon startup.
+
+- Edit the line before hitting return?
+    -- Done. The left & right arrows are implemented with bounds to restraint it within the leng-
+       th of the current line + 1. Backspace and delete keys are implemented with the ability to
+       modify the current line on the console and the data itself so it interprets the right line
+       when executes.
+    
+- Command reset and echo?
+    -- Done. echo is done by detecting the 5 characters of a line equals to 'e' 'c' 'h' 'o' ' ', 
+       and prints the string behind it on a new line. Check command_echo() and command_reset() 
+       for more details.
+
+- History of the last 20 lines entered, using up and down arrows to scroll through the history?
+    -- Done. This is implemented with upper and lower bounds considered (so when there's only 1 co-
+       mmands being executed, even if you click up arrow 10 times it will still show the previous 
+       one). 
+
+-- Known bugs / Things not implemented
+    -- If you type the special keys really fast (like del or arrow keys), sometimes it will print
+       unexpected characters like '~' (for delete) or 'C'/'D' (left / right keys).
+    -- A thing that is not implemented is the ability to store the current line when checking histo-
+       rys. For example in a real terminal when you enter a line like "ech" without hitting return, 
+       and the you go check history (up arrow key) and then comes back (down arrow key), it will sti-
+       ll show the line "ech" that you haven't finished. In this terminal however it will shown as a
+       blank line.
