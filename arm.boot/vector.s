@@ -46,5 +46,5 @@ _reserved:
 _fiq_handler:
 	b _halt
 _irq_handler:
-	b _halt
+	b _interrupt_service_routine
 

@@ -1,0 +1,16 @@
+Things done :
+	- _interrupt_service_routine function in irqs.s
+	- rx tx and rt handlers in uart.c
+	- enable UART fifo in uart.c
+	- jump to irq handler in vector.s
+	- individual irq stacks in linker script
+
+
+Questions not solved :
+- Can't figure out to send interrupt signal to vic, even if it's enabled. The handlers are listening to
+  port 12, which is the UART interrupt entry.
+
+- UART does not change its interrupt status. 
+
+- Terminal stops working (due to receive & send does not working).
+

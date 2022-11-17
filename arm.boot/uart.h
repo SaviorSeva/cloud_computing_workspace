@@ -31,6 +31,11 @@
 #define UART_BUSY (1<<3)
 
 /**
+ * Enables the fifo queue on RX and TX of a given uart.
+ */
+int uart_enable_fifo(int uart);
+
+/**
  * Receive a character from the given uart, this is a non-blocking call.
  * Returns 0 if there are no character available.
  * Returns 1 if a character was read.
@@ -48,7 +53,10 @@ void uart_send(int uart, unsigned char s);
  * This is a wrapper function, provided for simplicity,
  * it sends a C string through the given uart.
  */
-void uart_send_string(int uart, const unsigned char *s);
+// void uart_send_string(int uart, const unsigned char *s);
 
+void uart_rx_interrupt_handler(void* uart);
+int uart_tx_interrupt_handler(void* uart);
+void uart_interrupt_handler(uint8_t* uart);
 
 #endif /* UART_H_ */
